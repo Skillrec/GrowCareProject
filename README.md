@@ -1,5 +1,5 @@
 # GrowCareProject
-A project to connect the VegTrug Sensorand catch the data. Send it to an database.
+A project to connect the VegTrug Sensor and catch the data. Send it to an database.
 
 *Must install:*
 - python3.7
