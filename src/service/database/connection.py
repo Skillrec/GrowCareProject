@@ -1,37 +1,61 @@
 import logging
 from datetime import datetime
-
-import mysql.connector as mc
-
-from growCare.Object.Device import Device
-from uuid import getnode as get_mac
 import time
+import importlib
+import json
+
+from src.model.device import Device
+from uuid import getnode as get_mac
 
 
 FILENAME = '/home/pi/GrowCareProject/log/' + datetime.now().date().__str__()
 FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 
 
+@staticmethod
 def get_mac_address():
     return get_mac()
+
+
+@staticmethod
+def check_module(module):
+    module_loader = importlib.find_loader(module)
+    if module_loader is not None:
+        from mysql import connector as mc
+    return module_loader is not None
 
 
 class Connection:
 
     def __init__(self):
+        logging.basicConfig(filename=FILENAME, format=FORMAT,
+                            level=logging.DEBUG, filemode='a')
+        logging.info("Connection: Initializing the class")
+        self.config = "../../config/main.config.json"
+        self.load_config()
+
         self.connection = None
         self.cursor = None
-        logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.DEBUG, filemode='a')
+
+    def load_config(self):
+        with open(self.config) as config_file:
+            data = json.load(config_file)
+            self.ip = data['server']['ip']
+            self.user = data['server']['user']
+            self.pwd = data['server']['password']
+            self.db = data['server']['db_name']
+            self.module = data['module']
 
     def connect(self):
-        try:
-            self.connection = mc.connect(host='192.168.178.36',
-                                         user='MySQLuser',
-                                         password='PHPyF2jwyFv',
-                                         db='haus')
-            self.cursor = self.connection.cursor()
-        except Exception as e:
-            logging.error("An Exception occurred", exc_info=True)
+        if check_module(self.module):
+            try:
+                self.connection = mc.connect(host=self.ip,
+                                             user=self.user,
+                                             password=self.password,
+                                             db=self.db)
+                self.cursor = self.connection.cursor()
+            except Exception as e:
+                logging.error("An Exception occurred", exc_info=True)
 
     def add_new_device(self, args):
         self.connect()
@@ -50,7 +74,8 @@ class Connection:
                     'BATTERY, IDGrow_Care_Device) VALUE (%s, %s, %s, %s, %s, %s) '
             self.cursor.execute(query, val)
             self.connection.commit()
-            self.update_last_sync(id_device, last_sync=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+            self.update_last_sync(id_device, last_sync=time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime()))
         except Exception as e:
             logging.error("An Exception occurred", exc_info=True)
 
@@ -88,5 +113,3 @@ class Connection:
         query = "UPDATE Grow_Care_Device SET LastSync = %s WHERE IDGrow_Care_Device = %s"
         self.cursor.execute(query, (last_sync, id_device))
         self.connection.commit()
-
-

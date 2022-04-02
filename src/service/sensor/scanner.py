@@ -8,11 +8,16 @@ from miflora import miflora_scanner
 import bluepy
 
 from growCare.Database.connection import Connection
-from growCare.Object.Device import Device
+from src.model.device import Device
 
-FILENAME = '/home/pi/GrowCareProject/log/scanner/' + datetime.now().date().__str__()
+import os
+
+
+FILENAME = os.path.expanduser(
+    '~') + 'GrowCareProject/log/scanner/' + str(datetime.now().date())
 FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
-logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.DEBUG, filemode='a')
+logging.basicConfig(filename=FILENAME, format=FORMAT,
+                    level=logging.DEBUG, filemode='a')
 
 
 def search_bl_devices():
@@ -20,7 +25,7 @@ def search_bl_devices():
     devices_founded = []
     backend = BluepyBackend
     devices_mi = miflora_scanner.scan(backend, 12)
-    logging.info('{} Geräte gefunden'.format(len(devices_mi)))
+    logging.info('{} Devices found'.format(len(devices_mi)))
     for device in devices_mi:
         logging.info('{}'.format(device))
         devices_founded.append(Device(0, '', device))
@@ -31,8 +36,8 @@ def check_device(mac_address):
     con = Connection()
     check = True
     for device in con.get_devices():
-      if device.mac_address == mac_address:
-          check = False
+        if device.mac_address == mac_address:
+            check = False
     return check
 
 
@@ -40,4 +45,3 @@ def add_new_device(mac_address):
     con = Connection()
     con.add_new_device(("New Device", mac_address))
     logging.info("New Device is added.")
-

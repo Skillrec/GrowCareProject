@@ -1,12 +1,13 @@
 import logging
 
-from main import FILENAME, FORMAT
+from src.main import FILENAME, FORMAT
 
 from growCare.Database.connection import Connection
 from growCare.Device.data import Data
 from growCare.Device.scanner import search_bl_devices, check_device, add_new_device
 
-logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.DEBUG, filemode='a')
+logging.basicConfig(filename=FILENAME, format=FORMAT,
+                    level=logging.DEBUG, filemode='a')
 
 
 if __name__ == '__main__':

@@ -17,7 +17,8 @@ FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 class Data(Thread):
 
     def __init__(self, mac_address, id, loop=False):
-        logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.DEBUG, filemode='a')
+        logging.basicConfig(filename=FILENAME, format=FORMAT,
+                            level=logging.DEBUG, filemode='a')
         Thread.__init__(self)
         self.mac_address = mac_address
         self.id = id
@@ -41,10 +42,11 @@ class Data(Thread):
         try:
             poller = MiFloraPoller(str(self.mac_address), BluepyBackend)
             return poller.parameter_value(MI_MOISTURE), poller.parameter_value(MI_CONDUCTIVITY), \
-                   poller.parameter_value(MI_LIGHT), poller.parameter_value(MI_TEMPERATURE), poller.parameter_value(
+                poller.parameter_value(MI_LIGHT), poller.parameter_value(MI_TEMPERATURE), poller.parameter_value(
                 MI_BATTERY)
         except bluepy.btle.BTLEDisconnectError as e:
-            logging.error("Can't connect and fetch the data from the device", exc_info=True)
+            logging.error(
+                "Can't connect and fetch the data from the device", exc_info=True)
         except Exception as e:
             logging.error("An Exception occurred", exc_info=True)
 
@@ -54,5 +56,3 @@ class Data(Thread):
             connection.insert_data(self.id, self.get_data())
         except TypeError as type_error:
             return False
-
-

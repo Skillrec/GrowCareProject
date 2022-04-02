@@ -1,0 +1,10 @@
+{
+    "storage": "remote",
+    "database": "mysql",
+    "server": {
+        "ip": "192.168.178.43",
+        "user": "MySQLuser",
+        "password": "PHPyF2jwyFv",
+        "db_name": "haus"
+    }
+}
